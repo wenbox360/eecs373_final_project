@@ -1,0 +1,3 @@
+../Core/Src/lidar.c:15:7:angle_diff	16	static
+../Core/Src/lidar.c:24:6:send_express_scan_command	32	static
+../Core/Src/lidar.c:37:6:decode_express_capsule	120	static
