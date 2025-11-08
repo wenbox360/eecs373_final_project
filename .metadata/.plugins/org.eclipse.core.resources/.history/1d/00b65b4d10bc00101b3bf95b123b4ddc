@@ -1,0 +1,18 @@
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <cmath>
+#include <errno.h>
+#include <string.h>
+
+
+
+// A1 LIDAR Protocol Constants
+#define SL_LIDAR_CMD_SYNC_BYTE              0xA5
+#define SL_LIDAR_CMD_GET_DEVICE_INFO        0x50
+#define SL_LIDAR_CMD_EXPRESS_SCAN           0x82
+#define SL_LIDAR_CMD_SET_MOTOR_PWM          0xF0
+#define SL_LIDAR_CMD_STOP                   0x25

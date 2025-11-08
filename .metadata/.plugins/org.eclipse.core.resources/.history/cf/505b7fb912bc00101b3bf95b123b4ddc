@@ -1,0 +1,32 @@
+/*
+ * lidar.c
+ *
+ *  Created on: Nov 7, 2025
+ *      Author: wenbox
+ */
+
+float angle_diff(float angle1, float angle2) {
+    if (angle1 <= angle2) {
+        return angle2 - angle1;
+    } else {
+        return 360.0f + angle2 - angle1;
+    }
+}
+
+
+void send_express_scan_command(UART_HandleTypeDef* huart) {
+	uint8_t packet[9] = {
+	        SL_LIDAR_CMD_SYNC_BYTE, SL_LIDAR_CMD_EXPRESS_SCAN,
+	        0x05,                    // Payload length
+	        0x00,                    // working_mode (0 for legacy express)
+	        0x00, 0x00,             // working_flags
+	        0x00, 0x00,             // param
+	        0x22                     // Checksum
+	    };
+	HAL_UART_Transmit(huart, &packet, sizeof(packet), HAL_MAX_Delay);
+}
+
+
+void decode_express_capsule(uint8_t* capsule_data) {
+
+}

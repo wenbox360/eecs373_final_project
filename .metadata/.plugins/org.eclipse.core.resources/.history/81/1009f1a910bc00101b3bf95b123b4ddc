@@ -1,0 +1,14 @@
+/*
+ * lidar.c
+ *
+ *  Created on: Nov 7, 2025
+ *      Author: wenbox
+ */
+void send_express_scan_command() {
+
+}
+
+
+void decode_express_capsule(uint8_t* capsule_data) {
+
+}

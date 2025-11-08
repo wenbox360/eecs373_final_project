@@ -1,0 +1,105 @@
+/*
+ * lidar.c
+ *
+ *  Created on: Nov 7, 2025
+ *      Author: wenbox
+ */
+
+#include "lidar.h"
+
+float angle_diff(float angle1, float angle2) {
+    if (angle1 <= angle2) {
+        return angle2 - angle1;
+    } else {
+        return 360.0f + angle2 - angle1;
+    }
+}
+
+
+void send_express_scan_command(UART_HandleTypeDef* huart) {
+	uint8_t packet[9] = {
+	        SL_LIDAR_CMD_SYNC_BYTE, SL_LIDAR_CMD_EXPRESS_SCAN,
+	        0x05,                    // Payload length
+	        0x00,                    // working_mode (0 for legacy express)
+	        0x00, 0x00,             // working_flags
+	        0x00, 0x00,             // param
+	        0x22                     // Checksum
+	    };
+	HAL_UART_Transmit(huart, &packet, sizeof(packet), HAL_MAX_DELAY);
+}
+
+
+void decode_express_capsule(uint8_t* capsule_data, bool has_prev_packet) {
+    // Express scan DATA packets (84 bytes total):
+    // Bytes 0-1: sync1/sync2 with embedded checksum
+    // Bytes 2-3: start_angle_q6[7:0] and S flag + start_angle_q6[14:8]
+    // Bytes 4-83: 16 cabins (5 bytes each) + final checksum
+
+    // Extract start angle from bytes 2-3
+    uint16_t start_angle_q6 = capsule_data[2] | ((capsule_data[3] & 0x7F) << 8);
+    float current_start_angle = start_angle_q6 / 64.0f;
+    bool new_scan = (capsule_data[3] & 0x80) != 0;
+
+
+    // Process PREVIOUS packet if we have it (need current packet for angle interpolation)
+    if (has_prev_packet) {
+        // Calculate angle difference between previous and current packet
+        float omega_i = prev_start_angle;
+        float omega_i_plus_1 = current_start_angle;
+        float angle_diff_value = angle_diff(omega_i, omega_i_plus_1);
+
+        // Process 16 cabins from previous packet
+        // Cabins start at byte 4 (after sync bytes 0-1 and start_angle bytes 2-3)
+        int prev_cabin_offset = 4;
+
+        for (int cabin = 0; cabin < 16; cabin++) {
+            uint8_t* cabin_data = prev_packet + prev_cabin_offset + (cabin * 5);
+
+            // Cabin byte layout (A1 Express format):
+            // +0: distance1[5:0] + dθ₁[5:4]
+            // +1: distance1[13:6]
+            // +2: distance2[5:0] + dθ₂[5:4]
+            // +3: distance2[13:6]
+            // +4: dθ₂[3:0] + dθ₁[3:0]
+
+            // Extract distance1 (14-bit)
+            uint16_t distance1 = (cabin_data[0] & 0x3F) | (cabin_data[1] << 6);
+
+            // Extract distance2 (14-bit)
+            uint16_t distance2 = (cabin_data[2] & 0x3F) | (cabin_data[3] << 6);
+
+            // Extract dθ₁ (6-bit signed Q3: top bit = sign, value in degrees/8)
+            uint8_t dtheta1_raw = ((cabin_data[0] & 0xC0) >> 6) | ((cabin_data[4] & 0x0F) << 2);
+            int8_t dtheta1_signed = (dtheta1_raw & 0x20) ? (dtheta1_raw | 0xC0) : dtheta1_raw; // Sign extend
+            float dtheta1 = dtheta1_signed / 8.0f; // Q3 format
+
+            // Extract dθ₂ (6-bit signed Q3)
+            uint8_t dtheta2_raw = ((cabin_data[2] & 0xC0) >> 6) | ((cabin_data[4] & 0xF0) >> 2);
+            int8_t dtheta2_signed = (dtheta2_raw & 0x20) ? (dtheta2_raw | 0xC0) : dtheta2_raw; // Sign extend
+            float dtheta2 = dtheta2_signed / 8.0f; // Q3 format
+
+            // Calculate k values (sample indices within packet: 0-31)
+            int k1 = cabin * 2;      // First sample in cabin
+            int k2 = cabin * 2 + 1;  // Second sample in cabin
+
+            // Apply official RPLIDAR angle calculation formula:
+            // θₖ = ωᵢ + AngleDiff(ωᵢ, ωᵢ₊₁)/32 × k - dθₖ
+            float angle1 = omega_i + (angle_diff_value / 32.0f) * k1 - dtheta1;
+            float angle2 = omega_i + (angle_diff_value / 32.0f) * k2 - dtheta2;
+
+            // Normalize angles to 0-360 range
+            while (angle1 >= 360.0f) angle1 -= 360.0f;
+            while (angle1 < 0.0f) angle1 += 360.0f;
+            while (angle2 >= 360.0f) angle2 -= 360.0f;
+            while (angle2 < 0.0f) angle2 += 360.0f;
+
+            // Distances are already in mm
+            float dist1_mm = distance1;
+            float dist2_mm = distance2;
+        }
+
+        // Buffer current packet for next iteration
+          memcpy(prev_packet, capsule_data, 84);
+          prev_start_angle = current_start_angle;
+          has_prev_packet = true;
+    }

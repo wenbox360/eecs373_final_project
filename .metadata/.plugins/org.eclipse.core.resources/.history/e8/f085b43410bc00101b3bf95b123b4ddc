@@ -1,0 +1,17 @@
+/*
+ * lidar.c
+ *
+ *  Created on: Nov 7, 2025
+ *      Author: wenbox
+ */
+
+
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <unistd.h>
+#include <fcntl.h>
+#include <termios.h>
+#include <cmath>
+#include <errno.h>
+#include <string.h>

@@ -1,0 +1,20 @@
+#include <cstdlib.h>
+#include <math.h>
+#include <stdbool.h>
+
+
+// A1 LIDAR Protocol Constants
+#define SL_LIDAR_CMD_SYNC_BYTE              0xA5
+#define SL_LIDAR_CMD_GET_DEVICE_INFO        0x50
+#define SL_LIDAR_CMD_EXPRESS_SCAN           0x82
+#define SL_LIDAR_CMD_SET_MOTOR_PWM          0xF0
+#define SL_LIDAR_CMD_STOP                   0x25
+
+
+float angle_diff(float angle1, float angle2) {}
+
+
+void send_express_scan_command() {}
+
+
+bool decode_express_capsule(uint8_t* capsule_data) {}

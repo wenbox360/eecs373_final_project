@@ -1,0 +1,26 @@
+#include <stdlib.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "stm32l4xx_hal.h"
+
+// A1 LIDAR Protocol Constants
+#define SL_LIDAR_CMD_SYNC_BYTE              0xA5
+#define SL_LIDAR_CMD_GET_DEVICE_INFO        0x50
+#define SL_LIDAR_CMD_EXPRESS_SCAN           0x82
+#define SL_LIDAR_CMD_SET_MOTOR_PWM          0xF0
+#define SL_LIDAR_CMD_STOP                   0x25
+
+extern uint8_t * capsule_data[168];
+static uint8_t prev_packet[84];
+static bool has_prev_packet = false;
+static float prev_start_angle = 0;
+
+float angle_diff(float angle1, float angle2);
+
+
+void send_express_scan_command();
+
+
+void decode_express_capsule(uint8_t* capsule_data);
