@@ -21,7 +21,7 @@ float angle_diff(float angle1, float angle2) {
 }
 
 
-void send_express_scan_command(UART_HandleTypeDef* huart) {
+void send_express_scan_command(UART_HandleTypeDef* huart_addr) {
 	uint8_t packet[9] = {
 	        SL_LIDAR_CMD_SYNC_BYTE, SL_LIDAR_CMD_EXPRESS_SCAN,
 	        0x05,                    // Payload length
@@ -30,7 +30,7 @@ void send_express_scan_command(UART_HandleTypeDef* huart) {
 	        0x00, 0x00,             // param
 	        0x22                     // Checksum
 	    };
-	HAL_UART_Transmit(huart, &packet, sizeof(packet), HAL_MAX_DELAY);
+	HAL_UART_Transmit(huart_addr, packet, sizeof(packet), HAL_MAX_DELAY);
 }
 
 

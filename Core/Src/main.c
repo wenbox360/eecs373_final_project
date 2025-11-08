@@ -18,7 +18,6 @@
 /* USER CODE END Header */
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "lidar.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -81,7 +80,7 @@ int main(void)
   HAL_Init();
 
   /* USER CODE BEGIN Init */
-  uint8_t capsule_data[168];
+  uint8_t capsule_data[84];
   /* USER CODE END Init */
 
   /* Configure the system clock */
@@ -97,7 +96,7 @@ int main(void)
   MX_USART1_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-  send_express_scan_command(huart3);
+  send_express_scan_command(&huart3);
   HAL_Delay(1000);
   /* USER CODE END 2 */
 
@@ -105,8 +104,8 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-
-	 decode_express_capsule(&capsule_data);
+	 HAL_UART_Receive(&huart3, capsule_data, sizeof(capsule_data), HAL_MAX_DELAY);
+	 decode_express_capsule(capsule_data);
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
