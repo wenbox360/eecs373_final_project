@@ -16,7 +16,8 @@
 float angle_diff(float angle1, float angle2);
 
 
-void send_express_scan_command();
+void send_express_scan_command(UART_HandleTypeDef* huart_addr);
 
 
 void decode_express_capsule(uint8_t* capsule_data);
+

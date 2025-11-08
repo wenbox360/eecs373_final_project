@@ -6,7 +6,16 @@
  */
 
 #include "lidar.h"
+#include <stdio.h>
 
+const uint8_t express_scan[9] = {
+	        0xA5, 0x82,
+	        0x05,                    // Payload length
+	        0x00,                    // working_mode (0 for legacy express)
+	        0x00, 0x00,             // working_flags
+	        0x00, 0x00,             // param
+	        0x22                     // Checksum
+	    };
 
 uint8_t prev_packet[84];
 bool has_prev_packet = false;
@@ -21,16 +30,9 @@ float angle_diff(float angle1, float angle2) {
 }
 
 
+
 void send_express_scan_command(UART_HandleTypeDef* huart_addr) {
-	uint8_t packet[9] = {
-	        SL_LIDAR_CMD_SYNC_BYTE, SL_LIDAR_CMD_EXPRESS_SCAN,
-	        0x05,                    // Payload length
-	        0x00,                    // working_mode (0 for legacy express)
-	        0x00, 0x00,             // working_flags
-	        0x00, 0x00,             // param
-	        0x22                     // Checksum
-	    };
-	HAL_UART_Transmit(huart_addr, packet, sizeof(packet), HAL_MAX_DELAY);
+	HAL_UART_Transmit(huart_addr, express_scan, sizeof(express_scan), HAL_MAX_DELAY);
 }
 
 
