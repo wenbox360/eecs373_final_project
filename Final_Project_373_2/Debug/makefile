@@ -60,8 +60,8 @@ all: main-build
 main-build: Final_Project_373_2.elf secondary-outputs
 
 # Tool invocations
-Final_Project_373_2.elf Final_Project_373_2.map: $(OBJS) $(USER_OBJS) N:\EECS373-CubeIDE-Workspace\Final_Project_373_2\STM32L4R5ZITXP_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
-	arm-none-eabi-gcc -o "Final_Project_373_2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"N:\EECS373-CubeIDE-Workspace\Final_Project_373_2\STM32L4R5ZITXP_FLASH.ld" --specs=nosys.specs -Wl,-Map="Final_Project_373_2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
+Final_Project_373_2.elf Final_Project_373_2.map: $(OBJS) $(USER_OBJS) /Users/darrendong/Desktop/Classes/UofM/EECS_373/eecs373_final_project/Final_Project_373_2/STM32L4R5ZITXP_FLASH.ld makefile objects.list $(OPTIONAL_TOOL_DEPS)
+	arm-none-eabi-gcc -o "Final_Project_373_2.elf" @"objects.list" $(USER_OBJS) $(LIBS) -mcpu=cortex-m4 -T"/Users/darrendong/Desktop/Classes/UofM/EECS_373/eecs373_final_project/Final_Project_373_2/STM32L4R5ZITXP_FLASH.ld" --specs=nosys.specs -Wl,-Map="Final_Project_373_2.map" -Wl,--gc-sections -static --specs=nano.specs -mfpu=fpv4-sp-d16 -mfloat-abi=hard -mthumb -Wl,--start-group -lc -lm -Wl,--end-group
 	@echo 'Finished building target: $@'
 	@echo ' '
 
